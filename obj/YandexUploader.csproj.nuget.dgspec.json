@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/YandexUploader.csproj": {}
+    "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/YandexUploader.csproj": {}
   },
   "projects": {
-    "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/YandexUploader.csproj": {
+    "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/YandexUploader.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/YandexUploader.csproj",
+        "projectUniqueName": "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/YandexUploader.csproj",
         "projectName": "YandexUploader",
-        "projectPath": "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/YandexUploader.csproj",
+        "projectPath": "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/YandexUploader.csproj",
         "packagesPath": "/Users/kahramankaradavut/.nuget/packages/",
-        "outputPath": "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/obj/",
+        "outputPath": "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/kahramankaradavut/.nuget/NuGet/NuGet.Config"

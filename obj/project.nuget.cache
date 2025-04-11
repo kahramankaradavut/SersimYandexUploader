@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "okwAtFNyw7g=",
+  "dgSpecHash": "2S8/amJJ6lo=",
   "success": true,
-  "projectFilePath": "/Users/kahramankaradavut/Documents/GitHub/sersim/YandexUploader/YandexUploader.csproj",
+  "projectFilePath": "/Users/kahramankaradavut/Documents/GitHub/sersim/SersimYandexUploader/YandexUploader.csproj",
   "expectedPackageFiles": [
     "/Users/kahramankaradavut/.nuget/packages/microsoft.aspnetcore.openapi/8.0.13/microsoft.aspnetcore.openapi.8.0.13.nupkg.sha512",
     "/Users/kahramankaradavut/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

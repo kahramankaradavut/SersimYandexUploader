@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YandexUploader")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c555a9a4a716e70816b2b8e858a631ee5aff1ea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e6201594566b4d1198f84982eddde4899879e6e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("YandexUploader")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YandexUploader")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
