@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
@@ -9,19 +10,23 @@ namespace YandexUploader.Controllers
     public class YandexController : ControllerBase
     {
         private readonly HttpClient _client;
+        private readonly IConfiguration _configuration;
         private const string ClientId = "ed7f464694ba455a8c6d2b1725978140";
         private const string ClientSecret = "7777965ce9034b62ac6b20df0b39393d";
-        private const string RedirectUri = "https://localhost:5135/api/Yandex/callback"; 
+        private const string RedirectUri = "https://localhost:5135/api/Yandex/callback";
 
-        public YandexController()
+        public YandexController(IConfiguration configuration)
         {
             _client = new HttpClient();
+                _configuration = configuration;
+
         }
 
         [HttpGet("authorize")]
         public IActionResult Authorize()
         {
             var authorizationUrl = $"https://oauth.yandex.com/authorize?response_type=code&client_id={ClientId}&redirect_uri={RedirectUri}";
+            
             return Redirect(authorizationUrl);
         }
 
@@ -49,7 +54,7 @@ namespace YandexUploader.Controllers
         }
 
      [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromQuery] string accessToken, [FromBody] string fileContent)
+        public async Task<IActionResult> UploadFile([FromBody] string fileContent)
         {
             // Dosya adı ve yolu
             var fileName = $"uploaded_{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.txt";
@@ -57,6 +62,8 @@ namespace YandexUploader.Controllers
         
             var uploadLinkUrl = $"https://cloud-api.yandex.net/v1/disk/resources/upload?path=disk:{filePath}&overwrite=true";
         
+            string accessToken = _configuration["Yandex:AccessToken"];
+
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", accessToken);
         
             // Upload link al
@@ -96,6 +103,7 @@ namespace YandexUploader.Controllers
             return Ok(new { message = "Dosya başarıyla yüklendi", publicUrl = publicLink });
         }
         
+        
 
 
         public class TokenResponse
@@ -122,4 +130,6 @@ namespace YandexUploader.Controllers
             public string? PublicUrl { get; set; }
         }
     }
+
+    
 }
