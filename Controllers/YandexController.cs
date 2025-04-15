@@ -54,57 +54,61 @@ namespace YandexUploader.Controllers
         }
 
      [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromBody] string fileContent)
-        {
-            // Dosya adı ve yolu
-            var fileName = $"uploaded_{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.txt";
-            var filePath = $"/MyAppFolder/{fileName}"; 
-        
-            var uploadLinkUrl = $"https://cloud-api.yandex.net/v1/disk/resources/upload?path=disk:{filePath}&overwrite=true";
-        
-            string accessToken = _configuration["Yandex:AccessToken"];
+// public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
+public async Task<ActionResult> AddOne([FromForm] DocumentAddRequest docAddRequest, IFormFile file) 
 
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", accessToken);
+{
+    if (file == null || file.Length == 0)
+        return BadRequest("Dosya seçilmedi.");
+
+    var nameSuffix = string.IsNullOrWhiteSpace(docAddRequest?.Name) ? "" : $"_{docAddRequest.Name}";
+    var fileName = $"{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}{nameSuffix}_{file.FileName}";
+    var filePath = $"/MyAppFolder/{fileName}";
+
+    var uploadLinkUrl = $"https://cloud-api.yandex.net/v1/disk/resources/upload?path=disk:{filePath}&overwrite=true";
+    string accessToken = _configuration["Yandex:AccessToken"] ?? throw new InvalidOperationException("AccessToken is not configured.");
+    _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", accessToken);
+
+    // Upload link al
+    var linkResponse = await _client.GetAsync(uploadLinkUrl);
+    if (!linkResponse.IsSuccessStatusCode)
+        return StatusCode((int)linkResponse.StatusCode, "Yükleme bağlantısı alınamadı.");
+
+    var linkJson = await linkResponse.Content.ReadAsStringAsync();
+    var uploadUrl = JsonConvert.DeserializeObject<UploadLinkResponse>(linkJson)?.Href;
+
+    if (string.IsNullOrEmpty(uploadUrl))
+        return StatusCode(500, "Yükleme bağlantısı çözümlenemedi.");
+
+    using var fileStream = file.OpenReadStream();
+    var streamContent = new StreamContent(fileStream);
+    streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+    var uploadResponse = await _client.PutAsync(uploadUrl, streamContent);
+
+    if (!uploadResponse.IsSuccessStatusCode)
+        return StatusCode((int)uploadResponse.StatusCode, "Dosya yüklenemedi.");
+
+    // Dosyayı public yap
+    var publishUri = $"https://cloud-api.yandex.net/v1/disk/resources/publish?path=disk:{filePath}";
+    var publishResponse = await _client.PutAsync(publishUri, null);
+    if (!publishResponse.IsSuccessStatusCode)
+        return StatusCode((int)publishResponse.StatusCode, "Dosya public yapılamadı.");
+
+    // Public link al
+    var infoUri = $"https://cloud-api.yandex.net/v1/disk/resources?path=disk:{filePath}";
+    var infoResponse = await _client.GetAsync(infoUri);
+    var infoJson = await infoResponse.Content.ReadAsStringAsync();
+    var publicLink = JsonConvert.DeserializeObject<ResourceInfo>(infoJson)?.PublicUrl;
+
+    return Ok(new { message = "Dosya başarıyla yüklendi", publicUrl = publicLink });
+}
+
         
-            // Upload link al
-            var linkResponse = await _client.GetAsync(uploadLinkUrl);
-            if (!linkResponse.IsSuccessStatusCode)
-                return StatusCode((int)linkResponse.StatusCode, "Yükleme bağlantısı alınamadı.");
         
-            var linkJson = await linkResponse.Content.ReadAsStringAsync();
-            var uploadUrl = JsonConvert.DeserializeObject<UploadLinkResponse>(linkJson)?.Href;
-        
-            if (string.IsNullOrEmpty(uploadUrl))
-                return StatusCode(500, "Yükleme bağlantısı çözümlenemedi.");
-        
-            // Metni byte array'e çevir
-            var content = new StringContent(fileContent);
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
-        
-            // Dosyayı yükle
-            var uploadResponse = await _client.PutAsync(uploadUrl, content);
-        
-            if (!uploadResponse.IsSuccessStatusCode)
-                return StatusCode((int)uploadResponse.StatusCode, "Dosya yüklenemedi.");
-        
-            // Public yap
-            var publishUri = $"https://cloud-api.yandex.net/v1/disk/resources/publish?path=disk:{filePath}";
-            var publishResponse = await _client.PutAsync(publishUri, null);
-        
-            if (!publishResponse.IsSuccessStatusCode)
-                return StatusCode((int)publishResponse.StatusCode, "Dosya public yapılamadı.");
-        
-            // Public URL al
-            var infoUri = $"https://cloud-api.yandex.net/v1/disk/resources?path=disk:{filePath}";
-            var infoResponse = await _client.GetAsync(infoUri);
-            var infoJson = await infoResponse.Content.ReadAsStringAsync();
-            var publicLink = JsonConvert.DeserializeObject<ResourceInfo>(infoJson)?.PublicUrl;
-        
-            return Ok(new { message = "Dosya başarıyla yüklendi", publicUrl = publicLink });
+        public class DocumentAddRequest{
+            public string? Name { get; set; }
         }
-        
-        
-
 
         public class TokenResponse
         {
